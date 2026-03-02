@@ -17,6 +17,7 @@
   canvas {
     border: 2px solid #333;
     cursor: crosshair;
+    touch-action: none; /* touch scroll-un qarşısını alır */
   }
   #palette, #brushControls {
     margin-top: 15px;
@@ -100,21 +101,38 @@ brushInput.oninput = () => {
 };
 
 // --- Drawing ---
-canvas.addEventListener('mousedown', () => drawing = true);
-canvas.addEventListener('mouseup', () => drawing = false);
-canvas.addEventListener('mouseleave', () => drawing = false);
-canvas.addEventListener('mousemove', draw);
-
-function draw(e){
-  if(!drawing) return;
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+function drawCircle(x, y){
   ctx.fillStyle = currentColor;
   ctx.beginPath();
   ctx.arc(x, y, brushSize, 0, Math.PI * 2);
   ctx.fill();
 }
+
+// Mouse events
+canvas.addEventListener('mousedown', () => drawing = true);
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mouseleave', () => drawing = false);
+canvas.addEventListener('mousemove', e => {
+  if(!drawing) return;
+  const rect = canvas.getBoundingClientRect();
+  drawCircle(e.clientX - rect.left, e.clientY - rect.top);
+});
+
+// Touch events
+canvas.addEventListener('touchstart', e => {
+  drawing = true;
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  drawCircle(touch.clientX - rect.left, touch.clientY - rect.top);
+});
+canvas.addEventListener('touchmove', e => {
+  if(!drawing) return;
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  drawCircle(touch.clientX - rect.left, touch.clientY - rect.top);
+  e.preventDefault();
+});
+canvas.addEventListener('touchend', () => drawing = false);
 
 // --- Clear button ---
 document.getElementById('clearBtn').onclick = () => {
