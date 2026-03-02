@@ -10,29 +10,36 @@
     text-align: center;
     background: #f0f0f0;
   }
+
   #canvasContainer {
     display: inline-block;
     margin-top: 20px;
-    position: relative;
   }
+
+  #canvasContainer div {
+    position: relative;
+    display: inline-block;
+  }
+
   canvas {
     border: 2px solid #333;
     cursor: crosshair;
     touch-action: none;
-    position: absolute;
-    left: 0;
-    top: 0;
+    display: block; /* normal flow, üst-üstə görünür */
   }
+
   #palette, #brushControls {
     margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
   }
+
   #brushControls {
     gap: 10px;
     align-items: center;
   }
+
   .color {
     display: inline-block;
     width: 30px;
@@ -41,15 +48,18 @@
     border: 1px solid #000;
     cursor: pointer;
   }
+
   #controls {
     margin-top: 20px;
   }
+
   #controls button, #brushControls input {
     margin: 0 5px;
     padding: 8px 12px;
     font-size: 14px;
     cursor: pointer;
   }
+
   #brushSizeDisplay, #brushOpacityDisplay {
     font-weight: bold;
   }
@@ -61,8 +71,10 @@
 <p>Select a color, adjust brush size & opacity, paint on the image, and download your work.</p>
 
 <div id="canvasContainer">
-  <canvas id="backgroundCanvas" width="1050" height="1050"></canvas>
-  <canvas id="paintCanvas" width="1050" height="1050"></canvas>
+  <div>
+    <canvas id="backgroundCanvas" width="1050" height="1050"></canvas>
+    <canvas id="paintCanvas" width="1050" height="1050"></canvas>
+  </div>
 </div>
 
 <div id="palette"></div>
