@@ -17,7 +17,7 @@
   canvas {
     border: 2px solid #333;
     cursor: crosshair;
-    touch-action: none; /* touch scroll-un qarşısını alır */
+    touch-action: none; /* mobil scroll-un qarşısını alır */
   }
   #palette, #brushControls {
     margin-top: 15px;
@@ -100,15 +100,18 @@ brushInput.oninput = () => {
   brushDisplay.textContent = brushSize;
 };
 
-// --- Drawing ---
+// --- Drawing function with preserved contours ---
 function drawCircle(x, y){
+  ctx.save();
+  ctx.globalCompositeOperation = "source-atop"; // yalnız mövcud şəkil pikselləri üzərinə rəng
   ctx.fillStyle = currentColor;
   ctx.beginPath();
   ctx.arc(x, y, brushSize, 0, Math.PI * 2);
   ctx.fill();
+  ctx.restore();
 }
 
-// Mouse events
+// --- Mouse events ---
 canvas.addEventListener('mousedown', () => drawing = true);
 canvas.addEventListener('mouseup', () => drawing = false);
 canvas.addEventListener('mouseleave', () => drawing = false);
@@ -118,7 +121,7 @@ canvas.addEventListener('mousemove', e => {
   drawCircle(e.clientX - rect.left, e.clientY - rect.top);
 });
 
-// Touch events
+// --- Touch events ---
 canvas.addEventListener('touchstart', e => {
   drawing = true;
   const rect = canvas.getBoundingClientRect();
