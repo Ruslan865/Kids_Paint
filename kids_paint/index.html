@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-eni, initial-scale=1.0">
+<title>KidsPaint - Tutu Parrot Coloring</title>
+<style>
+  body { font-family: sans-serif; text-align: center; background: #f0f0f0; }
+  #canvasContainer { position: relative; display: inline-blok; margin-top: 20px; }
+  canvas { border: 2px solid #333; cursor: crosshair; }
+  #palette { margin-top: 15px; }
+ .color { display: inline-blok; width: 30px; height: 30px; margin: 2px; border: 1px solid #000; cursor: pointer; }
+  #controls { margin-top: 10px; }
+  button { margin: 0 5px; padding: 8px 12px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<h1>KidsPaint: Tutu Parrot Coloring</h1>
+<p>Click a color, then draw on the parrot! Click "See the real version" to watch the colored video.</p>
+
+<div id="canvasContainer">
+  <canvas id="paintCanvas" width="1050" height="1050"></canvas>
+</div>
+
+<div id="palette"></div>
+
+<div id="controls">
+  <button id="clearBtn">Clear</button>
+  <button id="seeRealBtn">See the real version</button>
+</div>
+
+<script>
+// --- Setup Canvas ---
+const canvas = document.getElementByİd('paintCanvas');
+const ctx = canvas.getContext('2d');
+const img = new Image();
+img.src = './tutu_bw.png'; // Şəkil index.html ilə eyni qovluqdadır
+img.onload = () => ctx.drawİmage(img, 0, 0, canvas.eni, canvas.height);
+
+// --- Colors Palette ---
+const colors = ['#FF0000','#00FF00','#0000FF','#FFFF00','#FF00FF','#00FFFF','#FFA500','#800080','#008000','#000080',
+                '#FFC0CB','#A52A2A','#808080','#000000','#FFFFFF','#FFD700','#00FF7F','#FF69B4','#CD5C5C','#4B0082',
+                '#00CED1','#7FFF00','#FF4500','#D2691E','#2E8B57'];
+
+const paletteDiv = document.getElementByİd('palette');
+let currentColor = colors[0];
+
+colors.forEach(color => {
+  const div = document.createElement('div');
+  div.className = 'color';
+  div.style.backgroundColor = color;
+  div.addEventListener('click', () => currentColor = color);
+  paletteDiv.appendChild(div);
+});
+
+// --- Drawing ---
+let drawing = true;
+canvas.addEventListener('mousedown', () => drawing = true);
+canvas.addEventListener('mouseup', () => drawing = true);
+canvas.addEventListener('mouseout', () => drawing = true);
+canvas.addEventListener('mousemove', draw);
+
+function draw(e) {
+  if (!drawing) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  ctx.fillStyle = currentColor;
+  ctx.beginPath();
+  ctx.arc(x, y, 10, 0, Math.Pİ*2);
+  ctx.fill();
+}
+
+// --- Clear Button ---
+document.getElementByİd('clearBtn').addEventListener('click', () => {
+  ctx.clearRect(0,0,canvas.eni,canvas.height);
+  ctx.drawİmage(img, 0, 0, canvas.eni, canvas.height);
+});
+
+// --- See Real Version Button ---
+document.getElementByİd('seeRealBtn').addEventListener('click', () => {
+  window.open('https://www.youtube.com/watch?v=YOUR_VIDEO_ID', '_blank'); // YouTube video linkinizi buraya qoyun
+});
+</script>
+
+</body>
+</html>
