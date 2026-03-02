@@ -5,64 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KidsPaint - Tutu Parrot Coloring</title>
 <style>
-  body {
-    font-family: sans-serif;
-    text-align: center;
-    background: #f0f0f0;
-  }
-
-  #canvasContainer {
-    display: inline-block;
-    margin-top: 20px;
-  }
-
-  #canvasContainer div {
-    position: relative;
-    display: inline-block;
-  }
-
-  canvas {
-    border: 2px solid #333;
-    cursor: crosshair;
-    touch-action: none;
-    display: block; /* normal flow, üst-üstə görünür */
-  }
-
-  #palette, #brushControls {
-    margin-top: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  #brushControls {
-    gap: 10px;
-    align-items: center;
-  }
-
-  .color {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    margin: 2px;
-    border: 1px solid #000;
-    cursor: pointer;
-  }
-
-  #controls {
-    margin-top: 20px;
-  }
-
-  #controls button, #brushControls input {
-    margin: 0 5px;
-    padding: 8px 12px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-
-  #brushSizeDisplay, #brushOpacityDisplay {
-    font-weight: bold;
-  }
+  body { font-family: sans-serif; text-align: center; background: #f0f0f0; }
+  canvas { border: 2px solid #333; cursor: crosshair; display: block; margin: 20px auto; touch-action: none; }
+  #palette, #brushControls, #controls { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; }
+  #brushControls { gap: 10px; align-items: center; }
+  .color { width: 30px; height: 30px; margin: 2px; border: 1px solid #000; cursor: pointer; }
+  #brushSizeDisplay, #brushOpacityDisplay { font-weight: bold; }
+  button, input { margin: 0 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -70,12 +19,7 @@
 <h1>KidsPaint: Tutu Parrot Coloring</h1>
 <p>Select a color, adjust brush size & opacity, paint on the image, and download your work.</p>
 
-<div id="canvasContainer">
-  <div>
-    <canvas id="backgroundCanvas" width="1050" height="1050"></canvas>
-    <canvas id="paintCanvas" width="1050" height="1050"></canvas>
-  </div>
-</div>
+<canvas id="paintCanvas" width="1050" height="1050"></canvas>
 
 <div id="palette"></div>
 
@@ -93,27 +37,21 @@
 </div>
 
 <script>
-// --- Canvas setup ---
-const bgCanvas = document.getElementById('backgroundCanvas');
-const bgCtx = bgCanvas.getContext('2d');
 const canvas = document.getElementById('paintCanvas');
 const ctx = canvas.getContext('2d');
+
 let drawing = false;
 let currentColor = '#FF0000';
 let brushSize = 10;
 let brushOpacity = 0.5;
 
-// Load image on background canvas
+// Load image directly on this canvas
 const img = new Image();
 img.src = 'tutu_bw.png';
-img.onload = () => bgCtx.drawImage(img, 0, 0, bgCanvas.width, bgCanvas.height);
+img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-// --- Colors palette ---
-const colors = [
-  '#FF0000','#00FF00','#0000FF','#FFFF00','#FF00FF',
-  '#00FFFF','#FFA500','#800080','#008000','#000080',
-  '#FFC0CB','#A52A2A','#808080','#000000','#FFFFFF'
-];
+// Palette
+const colors = ['#FF0000','#00FF00','#0000FF','#FFFF00','#FF00FF','#00FFFF','#FFA500','#800080','#008000','#000080','#FFC0CB','#A52A2A','#808080','#000000','#FFFFFF'];
 const paletteDiv = document.getElementById('palette');
 colors.forEach(color => {
   const div = document.createElement('div');
@@ -123,82 +61,49 @@ colors.forEach(color => {
   paletteDiv.appendChild(div);
 });
 
-// --- Brush size control ---
+// Brush controls
 const brushInput = document.getElementById('brushSize');
 const brushDisplay = document.getElementById('brushSizeDisplay');
-brushInput.oninput = () => {
-  brushSize = brushInput.value;
-  brushDisplay.textContent = brushSize;
-};
+brushInput.oninput = () => { brushSize = brushInput.value; brushDisplay.textContent = brushSize; }
 
-// --- Brush opacity control ---
 const opacityInput = document.getElementById('brushOpacity');
 const opacityDisplay = document.getElementById('brushOpacityDisplay');
-opacityInput.oninput = () => {
-  brushOpacity = parseFloat(opacityInput.value);
-  opacityDisplay.textContent = brushOpacity;
-};
+opacityInput.oninput = () => { brushOpacity = parseFloat(opacityInput.value); opacityDisplay.textContent = brushOpacity; }
 
-// --- Drawing function with transparency ---
-function drawCircle(x, y){
+// Drawing
+function drawCircle(x, y) {
   ctx.save();
   ctx.globalAlpha = brushOpacity;
   ctx.fillStyle = currentColor;
   ctx.beginPath();
-  ctx.arc(x, y, brushSize, 0, Math.PI * 2);
+  ctx.arc(x, y, brushSize, 0, Math.PI*2);
   ctx.fill();
   ctx.restore();
 }
 
-// --- Mouse events ---
 canvas.addEventListener('mousedown', () => drawing = true);
 canvas.addEventListener('mouseup', () => drawing = false);
 canvas.addEventListener('mouseleave', () => drawing = false);
-canvas.addEventListener('mousemove', e => {
-  if(!drawing) return;
-  const rect = canvas.getBoundingClientRect();
-  drawCircle(e.clientX - rect.left, e.clientY - rect.top);
-});
+canvas.addEventListener('mousemove', e => { if(drawing){ const rect=canvas.getBoundingClientRect(); drawCircle(e.clientX-rect.left,e.clientY-rect.top);} });
 
-// --- Touch events ---
-canvas.addEventListener('touchstart', e => {
-  drawing = true;
-  const rect = canvas.getBoundingClientRect();
-  const touch = e.touches[0];
-  drawCircle(touch.clientX - rect.left, touch.clientY - rect.top);
-});
-canvas.addEventListener('touchmove', e => {
-  if(!drawing) return;
-  const rect = canvas.getBoundingClientRect();
-  const touch = e.touches[0];
-  drawCircle(touch.clientX - rect.left, touch.clientY - rect.top);
-  e.preventDefault();
-});
-canvas.addEventListener('touchend', () => drawing = false);
+// Touch
+canvas.addEventListener('touchstart', e => { drawing=true; const rect=canvas.getBoundingClientRect(); const touch=e.touches[0]; drawCircle(touch.clientX-rect.left,touch.clientY-rect.top); });
+canvas.addEventListener('touchmove', e => { if(!drawing) return; const rect=canvas.getBoundingClientRect(); const touch=e.touches[0]; drawCircle(touch.clientX-rect.left,touch.clientY-rect.top); e.preventDefault(); });
+canvas.addEventListener('touchend', () => drawing=false);
 
-// --- Clear button ---
-document.getElementById('clearBtn').onclick = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-};
+// Clear
+document.getElementById('clearBtn').onclick = () => { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0,canvas.width,canvas.height); }
 
-// --- Download button ---
+// Download
 document.getElementById('downloadBtn').onclick = () => {
   const link = document.createElement('a');
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = canvas.width;
-  tempCanvas.height = canvas.height;
-  const tempCtx = tempCanvas.getContext('2d');
-  tempCtx.drawImage(bgCanvas, 0, 0);
-  tempCtx.drawImage(canvas, 0, 0);
   link.download = 'my_colored_parrot.png';
-  link.href = tempCanvas.toDataURL();
+  link.href = canvas.toDataURL();
   link.click();
-};
+}
 
-// --- YouTube button ---
-document.getElementById('seeRealBtn').onclick = () => {
-  window.open('https://www.youtube.com/', '_blank');
-};
+// YouTube
+document.getElementById('seeRealBtn').onclick = () => { window.open('https://www.youtube.com/', '_blank'); }
 </script>
 
 </body>
