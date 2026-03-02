@@ -13,11 +13,15 @@
   #canvasContainer {
     display: inline-block;
     margin-top: 20px;
+    position: relative;
   }
   canvas {
     border: 2px solid #333;
     cursor: crosshair;
-    touch-action: none; /* mobil scroll-un qarşısını alır */
+    touch-action: none;
+    position: absolute;
+    left: 0;
+    top: 0;
   }
   #palette, #brushControls {
     margin-top: 15px;
@@ -44,9 +48,10 @@
 <body>
 
 <h1>KidsPaint: Tutu Parrot Coloring</h1>
-<p>Select a color, change brush size, paint on the image, and download your work.</p>
+<p>Select a color, adjust brush size, paint on the image, and download your work.</p>
 
 <div id="canvasContainer">
+  <canvas id="backgroundCanvas" width="1050" height="1050"></canvas>
   <canvas id="paintCanvas" width="1050" height="1050"></canvas>
 </div>
 
@@ -65,16 +70,18 @@
 
 <script>
 // --- Canvas setup ---
+const bgCanvas = document.getElementById('backgroundCanvas');
+const bgCtx = bgCanvas.getContext('2d');
 const canvas = document.getElementById('paintCanvas');
 const ctx = canvas.getContext('2d');
 let drawing = false;
 let currentColor = '#FF0000';
 let brushSize = 10;
 
-// Load image
+// Load image on background canvas
 const img = new Image();
 img.src = 'tutu_bw.png';
-img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+img.onload = () => bgCtx.drawImage(img, 0, 0, bgCanvas.width, bgCanvas.height);
 
 // --- Colors palette ---
 const colors = [
@@ -82,7 +89,6 @@ const colors = [
   '#00FFFF','#FFA500','#800080','#008000','#000080',
   '#FFC0CB','#A52A2A','#808080','#000000','#FFFFFF'
 ];
-
 const paletteDiv = document.getElementById('palette');
 colors.forEach(color => {
   const div = document.createElement('div');
@@ -100,10 +106,10 @@ brushInput.oninput = () => {
   brushDisplay.textContent = brushSize;
 };
 
-// --- Drawing function with preserved contours ---
+// --- Drawing function with transparency ---
 function drawCircle(x, y){
   ctx.save();
-  ctx.globalCompositeOperation = "source-atop"; // yalnız mövcud şəkil pikselləri üzərinə rəng
+  ctx.globalAlpha = 0.5; // şəffaf rəng effekti
   ctx.fillStyle = currentColor;
   ctx.beginPath();
   ctx.arc(x, y, brushSize, 0, Math.PI * 2);
@@ -140,16 +146,20 @@ canvas.addEventListener('touchend', () => drawing = false);
 // --- Clear button ---
 document.getElementById('clearBtn').onclick = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const resetImg = new Image();
-  resetImg.src = 'tutu_bw.png';
-  resetImg.onload = () => ctx.drawImage(resetImg, 0, 0, canvas.width, canvas.height);
 };
 
 // --- Download button ---
 document.getElementById('downloadBtn').onclick = () => {
   const link = document.createElement('a');
+  // Bütün görüntünü birləşdirərək yükləyir
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  tempCtx.drawImage(bgCanvas, 0, 0);
+  tempCtx.drawImage(canvas, 0, 0);
   link.download = 'my_colored_parrot.png';
-  link.href = canvas.toDataURL();
+  link.href = tempCanvas.toDataURL();
   link.click();
 };
 
