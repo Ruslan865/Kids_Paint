@@ -140,4 +140,22 @@ canvas.addEventListener('touchend',()=>drawing=false);
 document.getElementById('clearBtn').onclick=()=>drawImage();
 
 // --- Download ---
-document.getE
+document.getElementById('downloadBtn').onclick=()=>{
+    const link=document.createElement('a');
+    link.download='my_colored_parrot.png';
+    link.href=canvas.toDataURL();
+    link.click();
+}
+
+// --- YouTube ---
+document.getElementById('seeRealBtn').onclick=()=>window.open('https://youtu.be/QpIShMJMOAk', '_blank');
+
+// --- Resize on window ---
+window.addEventListener('resize',()=>{
+    resizeCanvas();
+    drawImage();
+});
+</script>
+
+</body>
+</html>
